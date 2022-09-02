@@ -16,4 +16,5 @@ export { default as Pyramid } from './Charts/Pyramid';
 export { default as Stacked } from './Charts/Stacked';
 export { default as Test } from './Test';
 export { default as Tester } from './Tester';
+export { default as DataImport } from './DataImport';
 

@@ -16,6 +16,14 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Box from '@mui/material/Box';
 import { DataGrid } from '@mui/x-data-grid';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormHelperText from '@mui/material/FormHelperText';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+import Stack from '@mui/material/Stack';
+import Draggable from 'react-draggable';
+import Paper from '@mui/material/Paper';
 
 const Test = () => {
 
@@ -40,6 +48,11 @@ const Test = () => {
     )
   }
 
+  const [age, setAge] = React.useState('');
+
+  const handleChange = (event) => {
+    setAge(event.target.value);
+  };
 
   const [open, setOpen] = React.useState(false);
 
@@ -50,6 +63,17 @@ const Test = () => {
     const handleClose = () => {
       setOpen(false);
     };
+
+    function PaperComponent(props) {
+      return (
+        <Draggable
+          handle="#draggable-dialog-title"
+          cancel={'[class*="MuiDialogContent-root"]'}
+        >
+          <Paper {...props} />
+        </Draggable>
+      );
+    }
     
     const modelGrid = [
      
@@ -247,29 +271,54 @@ const Test = () => {
             </p>
         </div>                          
 
-        <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Subscribe</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            To subscribe to this website, please enter your email address here. We
-            will send updates occasionally.
-          </DialogContentText>
-          <TextField
-            autoFocus
-            margin="dense"
-            id="name"
-            label="Email Address"
-            type="email"
-            fullWidth
-            variant="standard"
-          />
+        <Dialog open={open} onClose={handleClose} PaperComponent={PaperComponent}
+        aria-labelledby="draggable-dialog-title">
+          <DialogTitle style={{ cursor: 'move' }} id="draggable-dialog-title">
+            New Project Name
+            </DialogTitle>
+          
+          
+          <DialogContent>     
+          <Stack
+            noValidate
+            component="form"            
+            spacing={2}            
+            autoComplete="off"
+            sx={{ m: 1, minWidth:450 }}
+          >       
+              <TextField
+              required
+              id="outlined-required"
+              label=""
+              defaultValue="New Project"
+            />
+          
+          <FormControl>
+                  <InputLabel id="demo-simple-select-helper-label">Learning Model</InputLabel>
+                  <Select
+                    labelId="demo-simple-select-helper-label"
+                    id="demo-simple-select-helper"
+                    value={age}
+                    label="Learning Task"
+                    onChange={handleChange}
+                  >
+                    
+                    <MenuItem value={10}>Classification</MenuItem>
+                    <MenuItem value={20}>Regression</MenuItem>
+                  </Select>
+                  {/* <FormHelperText>With label + helper text</FormHelperText> */}
+                </FormControl>
+          
+                </Stack>
         </DialogContent>
+    
+          
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleClose}>Subscribe</Button>
+          <Button onClick={handleClose}>Create New</Button>
         </DialogActions>
-      </Dialog>    
-
+      </Dialog> 
+      
         <Box sx={{ height: 400, width: '100%' }}>
       <DataGrid
         rows={modelData}
