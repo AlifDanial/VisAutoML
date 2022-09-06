@@ -162,6 +162,7 @@ const renderDetailsButton = (param) => {
     );
   }
 
+
 export default function BasicTable() {
 
   const { currentColor, currentMode, setDialog, hideDialog } = useStateContext(); 
@@ -267,15 +268,11 @@ export default function BasicTable() {
 
     
       <div className="m-1 md:mt-0 p-2 md:pl-10 pt-4 pb-10 pr-10 bg-white rounded-3xl">
-          <div className='mt-16'>
-        <div className='mt-16'> 
-          <div className='mt-16'>
+          <div className='mt-16'>        
             <p className='mb-7 text-3xl font-extrabold tracking-tight text-slate-900'>
               Models
             </p>
-          </div>
-        </div>         
-          </div>
+          </div>      
           <Box sx={{ height: 400, width: '100%' }}>
             <DataGrid
               rows={modelData}
@@ -298,6 +295,7 @@ export default function BasicTable() {
       onChange={handleUpload} 
       filesLimit={1}      
       acceptedFiles = {['text/csv']}
+      height={15}
       />      
       </div>
 
