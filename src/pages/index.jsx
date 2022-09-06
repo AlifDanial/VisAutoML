@@ -17,4 +17,5 @@ export { default as Stacked } from './Charts/Stacked';
 export { default as Test } from './Test';
 export { default as Tester } from './Tester';
 export { default as DataImport } from './DataImport';
+export { default as DataReview } from './DataReview';
 
