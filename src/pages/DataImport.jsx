@@ -1,5 +1,6 @@
 import React from 'react'
-import { DropzoneArea } from "material-ui-dropzone";
+// import { DropzoneArea } from "material-ui-dropzone";
+import { DropzoneArea } from "mui-file-dropzone";
 import Button from '@mui/material/Button';
 
 const DataImport = () => {

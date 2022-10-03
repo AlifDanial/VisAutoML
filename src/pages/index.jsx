@@ -18,4 +18,5 @@ export { default as Test } from './Test';
 export { default as Tester } from './Tester';
 export { default as DataImport } from './DataImport';
 export { default as DataReview } from './DataReview';
+export { default as ModelDev } from './ModelDev';
 
