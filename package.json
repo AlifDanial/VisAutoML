@@ -23,7 +23,7 @@
     "@syncfusion/ej2-react-schedule": "^19.4.50",
     "material-ui-dropzone": "^3.5.0",
     "mui-file-dropzone": "^4.0.1",
-    "plotly.js": "^2.14.0",
+    "plotly.js": "^1.44.4",
     "react": "^17.0.2",
     "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^17.0.2",

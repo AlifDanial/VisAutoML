@@ -23,6 +23,12 @@ import { DropzoneArea } from "mui-file-dropzone";
 import ReactDOM from "react-dom";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { useState } from "react";
+// import { css, cx } from "@emotion/css";
+// import tw from "@tailwindcssinjs/macro";
+import { useCallback, useReducer } from "react";
+import { data } from "../data";
+import produce from "immer";
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 
 
 const renderDetailsButton = (param) => {
@@ -166,56 +172,16 @@ const renderDetailsButton = (param) => {
     );
   }
 
- // fake data generator
-const getItems = (count, offset = 0) =>
-Array.from({ length: count }, (v, k) => k).map(k => ({
-  id: `item-${k + offset}-${new Date().getTime()}`,
-  content: `item ${k + offset}`
-}));
-
-const reorder = (list, startIndex, endIndex) => {
-const result = Array.from(list);
-const [removed] = result.splice(startIndex, 1);
-result.splice(endIndex, 0, removed);
-
-return result;
-};
-
-/**
- * Moves an item from one list to another list.
- */
- const move = (source, destination, droppableSource, droppableDestination) => {
-  const sourceClone = Array.from(source);
-  const destClone = Array.from(destination);
-  const [removed] = sourceClone.splice(droppableSource.index, 1);
-
-  destClone.splice(droppableDestination.index, 0, removed);
-
-  const result = {};
-  result[droppableSource.droppableId] = sourceClone;
-  result[droppableDestination.droppableId] = destClone;
-
-  return result;
-};
-const grid = 8;
-
-const getItemStyle = (isDragging, draggableStyle) => ({
-  // some basic styles to make the items look a bit nicer
-  userSelect: "none",
-  padding: grid * 2,
-  margin: `0 0 ${grid}px 0`,
-
-  // change background colour if dragging
-  background: isDragging ? "lightgreen" : "grey",
-
-  // styles we need to apply on draggables
-  ...draggableStyle
-});
-const getListStyle = isDraggingOver => ({
-  background: isDraggingOver ? "lightblue" : "lightgrey",
-  padding: grid,
-  width: 250
-});
+  const dragReducer = produce((draft, action) => {
+    switch (action.type) {
+      case "MOVE": {
+        draft[action.from] = draft[action.from] || [];
+        draft[action.to] = draft[action.to] || [];
+        const [removed] = draft[action.from].splice(action.fromIndex, 1);
+        draft[action.to].splice(action.toIndex, 0, removed);
+      }
+    }
+  });
 
 export default function BasicTable() {
 
@@ -250,32 +216,33 @@ export default function BasicTable() {
       setFiles(files);
     }
 
-    const [state, setState] = useState([getItems(11), getItems(2, 11)]);
+    const [state, dispatch] = useReducer(dragReducer, {
+      items: data,
+    });
+  
+    const onDragEnd = useCallback((result) => {
+      if (result.reason === "DROP") {
+        if (!result.destination) {
+          return;
+        }
+        dispatch({
+          type: "MOVE",
+          from: result.source.droppableId,
+          to: result.destination.droppableId,
+          fromIndex: result.source.index,
+          toIndex: result.destination.index,
+        });
+      }
+    }, []);
 
-  function onDragEnd(result) {
-    const { source, destination } = result;
-
-    // dropped outside the list
-    if (!destination) {
-      return;
-    }
-    const sInd = +source.droppableId;
-    const dInd = +destination.droppableId;
-
-    if (sInd === dInd) {
-      const items = reorder(state[sInd], source.index, destination.index);
-      const newState = [...state];
-      newState[sInd] = items;
-      setState(newState);
-    } else {
-      const result = move(state[sInd], state[dInd], source, destination);
-      const newState = [...state];
-      newState[sInd] = result[sInd];
-      newState[dInd] = result[dInd];
-
-      setState(newState.filter(group => group.length));
-    }
-  }
+    const styles = {
+      dragger: `px-4 py-4 my-2 transition-colors duration-150 ease-in-out bg-white rounded-lg shadow hover:bg-gray-100`,
+      dropper: `w-auto px-4 min-w-1/4 max-w-1/2`,
+      draggerContent: `flex items-center space-x-3 text-base`,
+      draggerIcon: `inline-flex items-center justify-center rounded-full p-1.5 text-white bg-teal-100 text-teal-700`,
+      dragging: `bg-slate-200`,
+      dropOver: `bg-slate-200`,
+    };
 
     
   return (
@@ -380,86 +347,248 @@ export default function BasicTable() {
       />      
       </div>
 
+      <div className='mb-7 flex flex-wrap lg:flex-nowrap'>
+      <DragDropContext onDragEnd={onDragEnd}>
 
-<div>
-      {/* <button
-        type="button"
-        onClick={() => {
-          setState([...state, []]);
-        }}
-      >
-        Add new group
-      </button>
-      <button
-        type="button"
-        onClick={() => {
-          setState([...state, getItems(1)]);
-        }}
-      >
-        Add new item
-      </button> */}
-
-
-      <div style={{ display: "flex" }}>
-        <DragDropContext onDragEnd={onDragEnd}>
-          {state.map((el, ind) => (
-            <Droppable key={ind} droppableId={`${ind}`}>
-              {(provided, snapshot) => (
+        <div className='m-2 w-80 ml-10 p-2 pt-4 pb-10 pr-10 bg-white'>
+          <div className='m-2 w-80 min-h-max md:mt-0 ml-10 p-2 md:pl-10 pt-4 pb-10 pr-10  bg-slate-200 rounded-2xl'>
+          <p className=' mb-5 text-xl font-extrabold tracking-tight text-slate-900 '>
+                    Prediction Column
+                </p>
+          <Droppable droppableId="items" type="PERSON">
+            {(provided, snapshot) => {
+              return (
                 <div
                   ref={provided.innerRef}
-                  style={getListStyle(snapshot.isDraggingOver)}
                   {...provided.droppableProps}
+                  className={(
+                    styles.dropper,
+                    snapshot.isDraggingOver && styles.dropOver
+                  )}
                 >
-                  {el.map((item, index) => (
-                    <Draggable
-                      key={item.id}
-                      draggableId={item.id}
-                      index={index}
-                    >
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          style={getItemStyle(
-                            snapshot.isDragging,
-                            provided.draggableProps.style
-                          )}
-                        >
-                          <div
-                            style={{
-                              display: "flex",
-                              justifyContent: "space-around"
-                            }}
-                          >
-                            {item.content}
-                            {/* <button
-                              type="button"
-                              onClick={() => {
-                                const newState = [...state];
-                                newState[ind].splice(index, 1);
-                                setState(
-                                  newState.filter(group => group.length)
-                                );
-                              }}
+                  {state.items?.map((person, index) => {
+                    return (
+                      <Draggable
+                        key={person.id}
+                        draggableId={person.id}
+                        index={index}
+                      >
+                        {(provided, snapshot) => {
+                          return (
+                            <div
+                              className={(
+                                styles.dragger,
+                                snapshot.isDragging && styles.dragging
+                              )}
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
                             >
-                              delete
-                            </button> */}
-                          </div>
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
+                              <div className={styles.draggerContent}>
+                                {/* <img
+                                  src={person.picture}
+                                  className={styles.draggerIcon}
+                                /> */}
+                                <DragIndicatorIcon />
+                                
+                                <span>
+                                  {person.name.first} {person.name.last}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        }}
+                      </Draggable>
+                    );
+                  })}
                   {provided.placeholder}
                 </div>
-              )}
-            </Droppable>
-          ))}
-        </DragDropContext>
-      </div>                   
-    </div>
-  
+              );
+            }}
+          </Droppable>
+          </div>
+          
+          <div className='m-2 w-80 min-h-max md:mt-0 ml-10 p-2 md:pl-10 pt-4 pb-10 pr-10  bg-slate-200 rounded-2xl'>
+          <p className=' mb-5 text-xl font-extrabold tracking-tight text-slate-900 '>
+                    ID Column
+                </p>
+          <Droppable droppableId="items2" type="PERSON">
+            {(provided, snapshot) => {
+              return (
+                <div
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                  className={(
+                    styles.dropper,
+                    snapshot.isDraggingOver && styles.dropOver
+                  )}
+                >
+                  {state.items2?.map((person, index) => {
+                    return (
+                      <Draggable
+                        key={person.id}
+                        draggableId={person.id}
+                        index={index}
+                      >
+                        {(provided, snapshot) => {
+                          return (
+                            <div
+                              className={(
+                                styles.dragger,
+                                snapshot.isDragging && styles.dragging
+                              )}
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                            >
+                              <div className={styles.draggerContent}>
+                                {/* <img
+                                  src={person.picture}
+                                  className={styles.draggerIcon}
+                                /> */}
+                                <DragIndicatorIcon />
+                                <span>
+                                  {person.name.first} {person.name.last}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        }}
+                      </Draggable>
+                    );
+                  })}
+                  {provided.placeholder}
+                </div>
+              );
+            }}
+          </Droppable>
+          </div>
+
+          <div className='m-2 w-80 min-h-max md:mt-0 ml-10 p-2 md:pl-10 pt-4 pb-10 pr-10  bg-slate-200 rounded-2xl'>
+          <p className=' mb-5 text-xl font-extrabold tracking-tight text-slate-900 '>
+                    Columns to not use
+                </p>
+          <Droppable droppableId="items3" type="PERSON">
+            {(provided, snapshot) => {
+              return (
+                <div
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                  className={(
+                    styles.dropper,
+                    snapshot.isDraggingOver && styles.dropOver
+                  )}
+                >
+                  {state.items3?.map((person, index) => {
+                    return (
+                      <Draggable
+                        key={person.id}
+                        draggableId={person.id}
+                        index={index}
+                      >
+                        {(provided, snapshot) => {
+                          return (
+                            <div
+                              className={(
+                                styles.dragger,
+                                snapshot.isDragging && styles.dragging
+                              )}
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                            >
+                              <div className={styles.draggerContent}>
+                                 {/* <img
+                                  src={person.picture}
+                                  className={styles.draggerIcon}
+                                /> */}
+                                <DragIndicatorIcon />
+                                <span>
+                                  {person.name.first} {person.name.last}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        }}
+                      </Draggable>
+                    );
+                  })}
+                  {provided.placeholder}
+                </div>
+              );
+            }}
+          </Droppable>
+          </div>  
+        </div>   
+
+        <div className='m-2 w-80 ml-10 p-2 pt-4 pb-10 pr-10 bg-white'>
+        <div className='m-2 w-80 min-h-max md:mt-0 ml-10 p-2 md:pl-10 pt-4 pb-10 pr-10  bg-slate-200 rounded-2xl'>
+        <p className=' mb-5 text-xl font-extrabold tracking-tight text-slate-900 '>
+                    Columns to use
+                </p>
+          <Droppable droppableId="items4" type="PERSON">
+            {(provided, snapshot) => {
+              return (
+                <div
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                  className={(
+                    styles.dropper,
+                    snapshot.isDraggingOver && styles.dropOver
+                  )}
+                >
+                  {state.items4?.map((person, index) => {
+                    return (
+                      <Draggable
+                        key={person.id}
+                        draggableId={person.id}
+                        index={index}
+                      >
+                        {(provided, snapshot) => {
+                          return (
+                            <div
+                              className={(
+                                styles.dragger,
+                                snapshot.isDragging && styles.dragging
+                              )}
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                            >
+                              <div className={styles.draggerContent}>
+                                 {/* <img
+                                  src={person.picture}
+                                  className={styles.draggerIcon}
+                                /> */}
+                                <DragIndicatorIcon />
+                                <span>
+                                  {person.name.first} {person.name.last}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        }}
+                      </Draggable>
+                    );
+                  })}
+                  {provided.placeholder}
+                </div>
+              );
+            }}
+          </Droppable>
+          </div>  
+        </div>   
+      </DragDropContext>
+      </div>
+
+      <div className=''>
+
+      </div>
+
   </div>
+  
+
+
 
       
   );
