@@ -188,7 +188,7 @@ const Test = () => {
   
 
   return (
-    <div className="m-2 md:mt-0 ml-10 p-2 md:pl-10 pt-4 pb-10 pr-10 bg-white rounded-3xl" >
+    <div className="m-2 min-w-max md:mt-0 ml-10 p-2 md:pl-10 pt-4 pb-10 pr-10 bg-white rounded-3xl" >
       <div className='mb-7 flex flex-wrap lg:flex-nowrap justify-left '>
         {/* <Header category="Home" title="Create New Model" /> */}
         <p className='mt-7 text-2xl font-extrabold tracking-tight text-slate-900'>
