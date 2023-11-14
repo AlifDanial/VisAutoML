@@ -1,0 +1,48 @@
+dashboard:
+  explainerfile: 497.joblib
+  params:
+    title: PP to Local Purchasing 4
+    name: null
+    description: "This dashboard shows the workings of a fitted\n            machine\
+      \ learning model, and explains its predictions."
+    simple: false
+    hide_header: true
+    header_hide_title: false
+    header_hide_selector: true
+    header_hide_download: false
+    hide_poweredby: true
+    block_selector_callbacks: false
+    pos_label: null
+    fluid: true
+    mode: dash
+    width: 1000
+    height: 800
+    bootstrap: null
+    external_stylesheets: null
+    url_base_pathname: null
+    routes_pathname_prefix: null
+    requests_pathname_prefix: null
+    responsive: true
+    logins: null
+    port: 8050
+    importances: true
+    model_summary: true
+    contributions: true
+    whatif: true
+    shap_dependence: true
+    shap_interaction: false
+    decision_trees: false
+    kwargs:
+      boostrap: https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/litera/bootstrap.min.css
+      plot_sample: 1000
+      hide_pdp: true
+      hide_whatifpdp: true
+      hide_contributiontable: true
+      hide_residuals: true
+      hide_regvscol: true
+      hide_whatifcontributiontable: true
+      hide_log_x: true
+      hide_log_y: true
+      precision: float32
+      depth: 6
+    tabs: null

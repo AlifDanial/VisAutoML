@@ -1,0 +1,83 @@
+* {
+    box-sizing: border-box !important;
+}
+
+.navbar {
+    width: 205px;
+    height: 100vh;
+    background-color: white;
+    z-index: 9999;
+}
+
+.main {
+    width: calc(100vw - 205px);
+    min-height: 100vh;
+    height: 100vh;
+}
+
+.sidebarOpen {
+    display: none !important;
+}
+
+.custom-primary-button {
+    background-color: rgba(0, 0, 0, 0.12);
+    color: rgba(0, 0, 0, 0.26);
+}
+
+.custom-disabled-button {
+    background-color: #1565c0;
+    color: white;
+}
+
+@media (max-width: 1280px) {
+    .navbar {
+        width: 0px;
+        height: 100vh;
+    }
+
+    .main {
+        width: 100vw;
+        min-height: 100vh;
+        height: 100vh;
+    }
+
+    .sidebarShow {
+        width: 205px;
+        height: 100vh;
+        background-color: white;
+        position: fixed;
+        z-index: 9999;
+    }
+
+    .sidebarHidden {
+        width: 0px;
+        height: 100vh;
+    }
+
+    .sidebarOpen {
+        display: block !important;
+        position: fixed !important;
+        top: 0px !important;
+        left: 20px !important;
+    }
+
+    .overlay {
+        display: none; /* Hidden by default */
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent */
+        z-index: 10; /* Below the tooltip and highlighted element */
+      }
+      
+      .overlay.active {
+        display: block; /* Show overlay when active */
+      }
+      
+      /* Style for the tooltip and highlighted element */
+      .tooltip, .highlighted-element {
+        z-index: 20; /* Above the overlay */
+      }
+}

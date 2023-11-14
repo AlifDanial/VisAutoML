@@ -1,0 +1,1 @@
+saved_id = "I am variabe from globe"
